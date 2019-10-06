@@ -13,6 +13,9 @@
     "paths": {
       "@app/database": [
         "libs/database/src"
+      ],
+      "@app/types": [
+        "libs/types/src"
       ]
     }
   },

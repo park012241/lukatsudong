@@ -1,8 +1,11 @@
-import {Db, MongoClient} from 'mongodb';
+import {Collection, Db, MongoClient} from 'mongodb';
 
 export class Database {
     private static _connectionURI: string;
     private static _client: MongoClient;
+    private static _collections: {
+        [name: string]: Collection;
+    } = {};
 
     public static set connectionURI(uri: string) {
         if (this._connectionURI) {
@@ -31,6 +34,9 @@ export class Database {
     }
 
     public static collection<T>(name: string) {
-        return Database.database.collection<T>(name);
+        if (!Database._collections[name]) {
+            Database._collections[name] = Database.database.collection(name);
+        }
+        return Database._collections[name] as Collection<T>;
     }
 }
