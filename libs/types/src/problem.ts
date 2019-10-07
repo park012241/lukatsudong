@@ -1,5 +1,4 @@
 import {Exclude, Expose} from 'class-transformer';
-import {IsInt, IsString} from 'class-validator';
 import {ObjectId} from 'mongodb';
 
 export interface IProblem {
@@ -17,15 +16,10 @@ export class Problem implements IProblem {
         return this._id;
     }
 
-    @IsString()
     public title: string;
-    @IsString()
     public description: string;
-    @IsInt()
     public score: number;
-    @IsString()
     public binary: string;
-    @IsString()
     public flag: string;
 
     constructor(p: Partial<IProblem>) {

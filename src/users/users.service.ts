@@ -1,23 +1,18 @@
 import {Injectable} from '@nestjs/common';
-import {Collection, ObjectId} from 'mongodb';
+import {Collection} from 'mongodb';
 import {IProblem, IUser, IUserNew, Problem, ProblemListElement, User, UserToken} from '@app/types';
 import {Database} from '@app/database';
-import {randomBytes} from 'crypto';
-import {sign, verify} from 'jsonwebtoken';
 import {classToPlain} from 'class-transformer';
-import {collectionName} from '@app/config';
+import {collectionName, sign, verify} from '@app/config';
 
 @Injectable()
 export class UsersService {
     private problemCollection: Collection<IProblem>;
     private usersCollection: Collection<IUser>;
 
-    private readonly tokenSecret: Buffer;
-
     constructor() {
-        this.problemCollection = Database.collection('problems');
-        this.usersCollection = Database.collection('users');
-        this.tokenSecret = process.env.JWT_SECRET ? Buffer.from(process.env.JWT_SECRET) : randomBytes(64);
+        this.problemCollection = Database.collection(collectionName.problems);
+        this.usersCollection = Database.collection(collectionName.users);
     }
 
     public get users(): Promise<User[]> {
@@ -66,13 +61,11 @@ export class UsersService {
         if (user.password !== password) {
             throw new Error('Auth failed');
         }
-        return sign(classToPlain(new UserToken(user.objectId)), this.tokenSecret, {
-            expiresIn: 360000,
-        });
+        return sign(classToPlain(new UserToken(user.objectId)));
     }
 
     public async solve(token: string, flag: string): Promise<ProblemListElement> {
-        const user: User = await this.usersCollection.find({_id: this.auth(token).id}).toArray().then((arr) => {
+        const user: User = await this.usersCollection.find({_id: verify(token).id}).toArray().then((arr) => {
             if (arr.length === 0) {
                 throw new Error('Couldn\'t find user');
             }
@@ -90,11 +83,5 @@ export class UsersService {
         });
 
         return new ProblemListElement(problem);
-    }
-
-    private auth(token: string): UserToken {
-        return new UserToken(ObjectId.createFromHexString((verify(token, this.tokenSecret) as {
-            id: string,
-        }).id));
     }
 }
