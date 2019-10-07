@@ -16,6 +16,9 @@
       ],
       "@app/types": [
         "libs/types/src"
+      ],
+      "@app/config": [
+        "libs/config/src"
       ]
     }
   },

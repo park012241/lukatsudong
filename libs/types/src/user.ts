@@ -1,5 +1,5 @@
 import {ObjectId} from 'mongodb';
-import {Exclude, Expose} from 'class-transformer';
+import {Exclude, Expose, Transform} from 'class-transformer';
 
 export interface IUserNew {
     userName: string;
@@ -9,11 +9,11 @@ export interface IUserNew {
     github?: string;
     facebook?: string;
     twitter?: string;
+    isAdmin: boolean;
 }
 
 export interface IUser extends IUserNew {
     problems: {
-        tried: ObjectId[];
         solved: ObjectId[];
     };
 }
@@ -21,30 +21,46 @@ export interface IUser extends IUserNew {
 export class User implements IUser {
     @Exclude()
     private _id: ObjectId;
+
     @Expose()
     public get id(): string {
         return this._id.toHexString();
     }
 
+    score: number;
+    @Transform(({solved}: {
+        solved: ObjectId[];
+    }) => {
+        return {
+            solved: solved.map((i) => i.toHexString()),
+        };
+    })
+    problems: { solved: ObjectId[] };
     email: string;
     facebook?: string;
     github?: string;
     nickname: string;
     @Exclude()
     password: string;
-    problems: { tried: ObjectId[]; solved: ObjectId[] };
+    isAdmin: boolean;
     twitter?: string;
     userName: string;
 
     constructor(u: Partial<IUser>) {
         Object.assign(this, u);
     }
+
+    @Exclude()
+    public get objectId(): ObjectId {
+        return this._id;
+    }
 }
 
 export class UserToken {
-    id: string;
+    @Transform((objectId: ObjectId) => objectId.toHexString())
+    id: ObjectId;
 
-    constructor(user: User) {
-        this.id = user.id;
+    constructor(id: ObjectId) {
+        this.id = id;
     }
 }

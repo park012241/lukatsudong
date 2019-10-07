@@ -19,6 +19,7 @@ export class UserDto implements IUserNew {
     twitter?: string;
     @IsString()
     userName: string;
+    isAdmin: boolean;
 }
 
 export class GetUserDto {
@@ -33,3 +34,9 @@ export class AuthUserDto {
     password: string;
 }
 
+export class SolveDto {
+    @IsString()
+    token: string;
+    @IsString()
+    flag: string;
+}

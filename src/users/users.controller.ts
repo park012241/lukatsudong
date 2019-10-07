@@ -1,7 +1,19 @@
-import {Body, ClassSerializerInterceptor, Controller, Get, Param, Post, Put, UseInterceptors, ValidationPipe} from '@nestjs/common';
+import {
+    Body,
+    ClassSerializerInterceptor,
+    Controller,
+    Get,
+    HttpException,
+    HttpStatus,
+    Param,
+    Post,
+    Put,
+    UseInterceptors,
+    ValidationPipe,
+} from '@nestjs/common';
 import {UsersService} from './users.service';
 import {User} from '@app/types';
-import {AuthUserDto, GetUserDto, UserDto} from './users.dto';
+import {AuthUserDto, GetUserDto, SolveDto, UserDto} from './users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -20,10 +32,15 @@ export class UsersController {
     @Put()
     public async addUser(@Body(new ValidationPipe()) user: UserDto) {
         try {
-            await this.usersService.addUser(user);
+            await this.usersService.addUser(Object.assign(user, {
+                isAdmin: false,
+            }));
             return {msg: 'OK'};
         } catch (e) {
-            return {statusCode: 400, msg: e.message};
+            throw new HttpException({
+                status: HttpStatus.BAD_REQUEST,
+                error: e.message,
+            }, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -40,10 +57,23 @@ export class UsersController {
                 token: await this.usersService.getToken(auth),
             };
         } catch (e) {
-            return {
-                statusCode: 403,
-                msg: e.message,
-            };
+            throw new HttpException({
+                status: HttpStatus.BAD_REQUEST,
+                error: e.message,
+            }, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Put('solve')
+    @UseInterceptors(ClassSerializerInterceptor)
+    public async solve(@Body(new ValidationPipe()) {flag, token}: SolveDto) {
+        try {
+            return await this.usersService.solve(token, flag);
+        } catch (e) {
+            throw new HttpException({
+                status: HttpStatus.BAD_REQUEST,
+                error: e.message,
+            }, HttpStatus.BAD_REQUEST);
         }
     }
 }

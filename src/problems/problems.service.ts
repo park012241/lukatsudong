@@ -28,7 +28,9 @@ export class ProblemsService {
             if (arr.length === 0) {
                 throw new Error('There is no problem with that id');
             }
-            return arr;
+            return arr.map((i) => {
+                return new Problem(i);
+            });
         });
     }
 }

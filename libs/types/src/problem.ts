@@ -11,6 +11,12 @@ export interface IProblem {
 }
 
 export class Problem implements IProblem {
+    public _id: ObjectId;
+
+    public get objectId(): ObjectId {
+        return this._id;
+    }
+
     @IsString()
     public title: string;
     @IsString()
@@ -29,7 +35,7 @@ export class Problem implements IProblem {
 
 export class ProblemListElement implements IProblem {
     @Exclude()
-    _id: ObjectId;
+    private _id: ObjectId;
 
     @Expose()
     get id(): string {
@@ -43,7 +49,7 @@ export class ProblemListElement implements IProblem {
     score: number;
     title: string;
 
-    constructor(p: Partial<ProblemListElement>) {
+    constructor(p: Partial<Problem>) {
         Object.assign(this, p);
     }
 }
