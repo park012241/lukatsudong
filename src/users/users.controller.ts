@@ -1,7 +1,7 @@
-import {Body, ClassSerializerInterceptor, Controller, Get, Param, Put, UseInterceptors, ValidationPipe} from '@nestjs/common';
+import {Body, ClassSerializerInterceptor, Controller, Get, Param, Post, Put, UseInterceptors, ValidationPipe} from '@nestjs/common';
 import {UsersService} from './users.service';
 import {User} from '@app/types';
-import {getUserDto, UserDto} from './users.dto';
+import {AuthUserDto, GetUserDto, UserDto} from './users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -29,7 +29,21 @@ export class UsersController {
 
     @Get(':userName')
     @UseInterceptors(ClassSerializerInterceptor)
-    public getUserByUserName(@Param() {userName}: getUserDto) {
+    public getUserByUserName(@Param() {userName}: GetUserDto) {
         return this.usersService.getUser(userName);
+    }
+
+    @Post()
+    public async getToken(@Body(new ValidationPipe()) auth: AuthUserDto) {
+        try {
+            return {
+                token: await this.usersService.getToken(auth),
+            };
+        } catch (e) {
+            return {
+                statusCode: 403,
+                msg: e.message,
+            };
+        }
     }
 }

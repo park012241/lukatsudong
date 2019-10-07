@@ -21,8 +21,15 @@ export class UserDto implements IUserNew {
     userName: string;
 }
 
-export class getUserDto {
+export class GetUserDto {
     @IsString()
     userName: string;
+}
+
+export class AuthUserDto {
+    @IsString()
+    userName: string;
+    @IsString()
+    password: string;
 }
 

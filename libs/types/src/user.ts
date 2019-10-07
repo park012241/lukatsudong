@@ -20,7 +20,7 @@ export interface IUser extends IUserNew {
 
 export class User implements IUser {
     @Exclude()
-    _id: ObjectId;
+    private _id: ObjectId;
     @Expose()
     public get id(): string {
         return this._id.toHexString();
@@ -38,5 +38,13 @@ export class User implements IUser {
 
     constructor(u: Partial<IUser>) {
         Object.assign(this, u);
+    }
+}
+
+export class UserToken {
+    id: string;
+
+    constructor(user: User) {
+        this.id = user.id;
     }
 }
