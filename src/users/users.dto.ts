@@ -40,3 +40,10 @@ export class SolveDto {
     @IsString()
     flag: string;
 }
+
+export class MakeAdminDto {
+    @IsString()
+    token: string;
+    @IsString()
+    secret: string;
+}

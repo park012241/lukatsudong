@@ -1,4 +1,3 @@
-import {randomBytes} from 'crypto';
 import {UserToken} from '@app/types';
 import {ObjectId} from 'bson';
 import {sign as s, verify as v} from 'jsonwebtoken';
@@ -8,7 +7,11 @@ export const collectionName = {
     users: 'users',
 };
 
-export const tokenSecret = process.env.JWT_SECRET ? Buffer.from(process.env.JWT_SECRET) : randomBytes(64);
+export const masterSecret = process.env.MASTER_SECRET || (() => {
+    console.warn('Please set master secret!');
+    return 'SLoWMoTIoN';
+})();
+export const tokenSecret = Buffer.from(masterSecret);
 
 export function sign(payload: object) {
     return s(payload, tokenSecret, {

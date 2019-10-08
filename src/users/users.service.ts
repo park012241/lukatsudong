@@ -1,9 +1,9 @@
-import {Injectable} from '@nestjs/common';
+import {ForbiddenException, Injectable} from '@nestjs/common';
 import {Collection} from 'mongodb';
 import {IProblem, IUser, IUserNew, Problem, ProblemListElement, User, UserToken} from '@app/types';
 import {Database} from '@app/database';
 import {classToPlain} from 'class-transformer';
-import {collectionName, sign, verify} from '@app/config';
+import {collectionName, masterSecret, sign, verify} from '@app/config';
 
 @Injectable()
 export class UsersService {
@@ -83,5 +83,13 @@ export class UsersService {
         });
 
         return new ProblemListElement(problem);
+    }
+
+    public async makeAdmin(token: string, secret: string): Promise<void> {
+        if (secret !== masterSecret) {
+            throw new ForbiddenException('Secret Auth Failed');
+        }
+        const userId = verify(token).id;
+        await this.usersCollection.updateOne({_id: userId}, {$set: {isAdmin: true}});
     }
 }

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import {UsersService} from './users.service';
 import {User} from '@app/types';
-import {AuthUserDto, GetUserDto, SolveDto, UserDto} from './users.dto';
+import {AuthUserDto, GetUserDto, MakeAdminDto, SolveDto, UserDto} from './users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -75,5 +75,13 @@ export class UsersController {
                 error: e.message,
             }, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Put('admin')
+    public async makeAdmin(@Body(new ValidationPipe()) {token, secret}: MakeAdminDto) {
+        await this.usersService.makeAdmin(token, secret);
+        return {
+            msg: 'OK',
+        };
     }
 }
